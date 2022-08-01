@@ -40,8 +40,6 @@ class ConfigClass:
         #        self.setup()
         GPIO.setmode(GPIO.BCM)
 
-        ## Below code wont work because objects are local...fix
-
     # def checkConfig(self):
     # future edits...
 
@@ -76,14 +74,6 @@ class ConfigClass:
             sys.exit("\nError opening or parsing config file, exiting")
 
         return (True)
-
-
-#    def setup(self):
-#        GPIO.setmode(GPIO.BCM)
-#        GPIO.setup(self.dewHeaterPin, GPIO.OUT)
-#        GPIO.setup(self.dhtPin, GPIO.IN)
-#      config.bmeBus = smbus2.SMBus(config.bmePort)
-#     config.bme_calibration_params = bme280.load_calibration_params(config.bmeBus, config.bmeAddress)
 
 
 config = ConfigClass()
@@ -124,25 +114,14 @@ class ConditionsClass:
     def __init__(self):
         self.fakeDewPointCounter = 0
 
-    #   def getBME280Data(self):
-    #       data = bme280.sample(config.bmeBus, config.bmeAddress, config.bme_calibration_params)
-    #       self.humidity = data.humidity
-    #       self.temperature = data.temperature
-
-    #   def getDHTData(self):
-    #       self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
-
     def update(self):
         if (config.sensorType == "BME280"):
             self.humidity, self.temperature = bme.getData()
-          #  self.humidity = bme.humidity
-          #  self.temperature = bme.humidity
+
         else:
             if (config.sensorType == "DHT22"):
                 self.humidity, self.temperature = dht.getData()
-              #  dht.getData()
-             #   self.humidity = dht.humidity
-              #  self.temperature = dht.humidity
+
             else:
                 sys.stderr.write("\nInvalid temperature sensor type: %s" % config.sensorType)
                 return
@@ -261,8 +240,7 @@ def dispalySatus():
     print("Sensor Type =%s" % config.sensorType)
     print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%% Dew Point = %3.1fC" % (
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
-    # Commented out for python2 compatibility
-    # print("Dew heater state =", end=" ")
+
     print("Dew heater state = ")
     if (dewHeater.status == ON):
         print("ON")
