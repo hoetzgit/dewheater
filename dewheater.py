@@ -6,7 +6,7 @@
 #  This code assumes a hacked USB dew heater. The hack consists of nothing more than removing the switch from the dew heater
 #  and directly connecting the power leads to the NO side of a relay. This same logic should work with resistor based designs too, but this  has not yet been tested.
 #
-#  A DHT sensor is used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed.
+#  A DHT22 or BME820 sensor is used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed.
 #  When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as
 #  an offset from degrees Celsius of the dew point. This method of temperature control is primitive, but is sufficient for this purpose.
 #
@@ -24,7 +24,7 @@ import time
 import json
 import Adafruit_DHT
 from meteocalc import dew_point
-# Added for BME
+
 import smbus2
 import bme280
 
@@ -32,17 +32,15 @@ DHT_SENSOR = Adafruit_DHT.DHT22
 ON = 1
 OFF = 0
 
-# Initialize BME
-#port = 1
-#address = 0x76
-
 
 class ConfigClass:
 
     def __init__(self):
         self.loadConfig()
-        self.setup()
+        #        self.setup()
+        GPIO.setmode(GPIO.BCM)
 
+        ## Below code wont work because objects are local...fix
 
     # def checkConfig(self):
     # future edits...
@@ -55,6 +53,8 @@ class ConfigClass:
                 self.debug = self.configFile['debug']
                 self.dhtPin = self.configFile['dhtPin']
                 self.sensorType = self.configFile['sensorType']
+                self.bmeAddress = self.configFile["bmeAddress"]
+                self.bmePort = self.configFile["bmePort"]
                 self.dewHeaterPin = self.configFile['dewHeaterPin']
                 self.dewHeaterCutinOffset = self.configFile['dewHeaterCutinOffset']
                 self.dewHeaterCutoutOffset = self.configFile['dewHeaterCutoutOffset']
@@ -77,38 +77,74 @@ class ConfigClass:
 
         return (True)
 
-    def setup(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.dewHeaterPin, GPIO.OUT)
-        GPIO.setup(self.dhtPin, GPIO.IN)
-        config.bmeBus = smbus2.SMBus(config.bmePort)
-        config.bme_calibration_params = bme280.load_calibration_params(config.bmeBus, config.bmeAddress)
+
+#    def setup(self):
+#        GPIO.setmode(GPIO.BCM)
+#        GPIO.setup(self.dewHeaterPin, GPIO.OUT)
+#        GPIO.setup(self.dhtPin, GPIO.IN)
+#      config.bmeBus = smbus2.SMBus(config.bmePort)
+#     config.bme_calibration_params = bme280.load_calibration_params(config.bmeBus, config.bmeAddress)
 
 
 config = ConfigClass()
 
 
-class conditionsClass:
+class DHTClass:
+
+    def __init__(self):
+        GPIO.setup(config.dhtPin, GPIO.IN)
+
+    def getData(self):
+        self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
+        return self.humidity, self.temperature
+
+
+dht = DHTClass()
+
+
+class BME820Class:
+    def __init__(self):
+        self.port = config.bmePort
+        self.address = int(config.bmeAddress,0)
+        self.bus = smbus2.SMBus(config.bmePort)
+        self.bme_calibration_params = bme280.load_calibration_params(self.bus, self.address)
+
+    def getData(self):
+        data = bme280.sample(self.bus, self.address, self.bme_calibration_params)
+        self.humidity = data.humidity
+        self.temperature = data.temperature
+        return self.humidity, self.temperature
+
+
+bme = BME820Class()
+
+
+class ConditionsClass:
 
     def __init__(self):
         self.fakeDewPointCounter = 0
 
-    def getBME280Data(self):
-        data = bme280.sample(config.bmeBus, config.bmeAddress, config.bme_calibration_params)
-        self.humidity = data.humidity
-        self.temperature = data.temperature
+    #   def getBME280Data(self):
+    #       data = bme280.sample(config.bmeBus, config.bmeAddress, config.bme_calibration_params)
+    #       self.humidity = data.humidity
+    #       self.temperature = data.temperature
 
-    def getDHTData(self):
-        self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
+    #   def getDHTData(self):
+    #       self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
 
     def update(self):
         if (config.sensorType == "BME280"):
-            self.getBME280Data()
+            self.humidity, self.temperature = bme.getData()
+          #  self.humidity = bme.humidity
+          #  self.temperature = bme.humidity
         else:
             if (config.sensorType == "DHT22"):
-                self.getDHT22Data()
+                self.humidity, self.temperature = dht.getData()
+              #  dht.getData()
+             #   self.humidity = dht.humidity
+              #  self.temperature = dht.humidity
             else:
-                sys.stderr.write("\nInvalid temperature sensor type: %s" %config.sensorType)
+                sys.stderr.write("\nInvalid temperature sensor type: %s" % config.sensorType)
                 return
 
         if self.humidity is not None and self.temperature is not None:
@@ -136,18 +172,19 @@ class conditionsClass:
                 return
 
 
-conditions = conditionsClass()
+conditions = ConditionsClass()
 
 
 class DewHeaterClass:
-
     def __init__(self):
+        GPIO.setup(config.dewHeaterPin, GPIO.OUT)
         self.cycleRelay()  # cycle the relay just as a start up test, if you dont hear it clicking then it aint working
         self.status = OFF
         self.off(True)  # force off in case left on by previous session
         self.minTempOn = False
         self.maxTempOff = False
         self.temp_actual = 0.0
+        GPIO.setup(config.dewHeaterPin, GPIO.OUT)
 
     def on(self, forced=False):
 
@@ -163,7 +200,6 @@ class DewHeaterClass:
         GPIO.output(config.dewHeaterPin, config.relayOn)
         self.status = ON
 
-
     def off(self, forced=False):
         if (forced):
             GPIO.output(config.dewHeaterPin, config.relayOff)
@@ -174,10 +210,8 @@ class DewHeaterClass:
             print("Min temp on, 'off' command ignored")
             return
 
-
         GPIO.output(config.dewHeaterPin, config.relayOff)
         self.status = OFF
-
 
     def cycleRelay(self):
         self.status = OFF
@@ -188,7 +222,6 @@ class DewHeaterClass:
         GPIO.output(config.dewHeaterPin, config.relayOn)
         time.sleep(1)
         GPIO.output(config.dewHeaterPin, config.relayOff)
-
 
     def checkTemps(self):
         conditions.update()
@@ -225,10 +258,11 @@ dewHeater = DewHeaterClass()
 
 def dispalySatus():
     print("====================================================")
+    print("Sensor Type =%s" % config.sensorType)
     print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%% Dew Point = %3.1fC" % (
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
     # Commented out for python2 compatibility
-    #print("Dew heater state =", end=" ")
+    # print("Dew heater state =", end=" ")
     print("Dew heater state = ")
     if (dewHeater.status == ON):
         print("ON")
@@ -237,7 +271,8 @@ def dispalySatus():
     print("invertOnOff = %s" % (config.invertOnOff))
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
-    print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
+    print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
+    conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
     print("====================================================")
 
 
@@ -246,6 +281,7 @@ def main():
         dewHeater.checkTemps()
         dispalySatus()
         time.sleep(config.dewPtCheckDelay)
+
 
 if __name__ == "__main__":
     main()
