@@ -236,7 +236,7 @@ dewHeater = DewHeaterClass()
 
 def dispalySatus():
     print("====================================================")
-    print("Sensor Type =%s" % config.sensorType)
+    print("Sensor Type = %s" % config.sensorType)
     print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%% Dew Point = %3.1fC" % (
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
 
