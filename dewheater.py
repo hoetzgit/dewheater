@@ -163,7 +163,6 @@ class DewHeaterClass:
         self.minTempOn = False
         self.maxTempOff = False
         self.temp_actual = 0.0
-        GPIO.setup(config.dewHeaterPin, GPIO.OUT)
 
     def on(self, forced=False):
 
