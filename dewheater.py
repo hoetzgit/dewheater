@@ -51,6 +51,9 @@ class ConfigClass:
                 self.debug = self.configFile['debug']
                 self.dhtPin = self.configFile['dhtPin']
                 self.sensorType = self.configFile['sensorType']
+                if (self.sensorType != "BME280" and self.sensorType != "DHT22"):
+                    sys.stderr.write("\nInvalid sensor type: %s" %self.sensorType)
+                    raise Exception(1)
                 self.bmeAddress = self.configFile["bmeAddress"]
                 self.bmePort = self.configFile["bmePort"]
                 self.dewHeaterPin = self.configFile['dewHeaterPin']
@@ -236,16 +239,17 @@ dewHeater = DewHeaterClass()
 
 def dispalySatus():
     print("====================================================")
-    print("Sensor Type = %s" % config.sensorType)
-    print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%% Dew Point = %3.1fC" % (
+    print("Sensor Type = %s" % config.sensorType, end='')
+    print("  Dew heater state = ", end='')
+    if (dewHeater.status == ON):
+        print("ON ", end='')
+    else:
+        print("OFF ", end='')
+    print(" invertOnOff = %s" % (config.invertOnOff))
+
+    print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%%, Dew Point = %3.1fC" % (
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
 
-    print("Dew heater state = ")
-    if (dewHeater.status == ON):
-        print("ON")
-    else:
-        print("OFF")
-    print("invertOnOff = %s" % (config.invertOnOff))
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
     print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
