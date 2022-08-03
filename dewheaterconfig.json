@@ -1,6 +1,6 @@
 {
   "debug": true,
-  "sensorType": "BME280",
+  "sensorType": "DHT22",
   "dhtPin": 4,
   "bmePort": 1,
   "bmeAddress": "0x76",
