@@ -116,7 +116,7 @@ class ConditionsClass:
 
     def __init__(self):
         self.fakeDewPointCounter = 0
-        self.dewPointMet = False;
+        self.dewPointMet = False
 
     def update(self):
         if (config.sensorType == "BME280"):
