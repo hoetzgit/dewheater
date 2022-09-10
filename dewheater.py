@@ -117,6 +117,7 @@ class ConditionsClass:
     def __init__(self):
         self.fakeDewPointCounter = 0
         self.dewPointMet = False
+        self.temp_actual = -1
 
     def update(self):
         if (config.sensorType == "BME280"):
@@ -131,7 +132,7 @@ class ConditionsClass:
                 return
 
         if self.humidity is not None and self.temperature is not None:
-            if ((self.temperature >= -40) and (self.temperature <= 80)) and (
+            if ((self.temperature >= -100) and (self.temperature <= 200)) and (
                     (self.humidity >= 0) and (self.humidity <= 100)):
                 self.temp_actual = self.temperature  # set actual temp for use when fakeDewPoint is true
                 self.dewPoint = dew_point(self.temperature, self.humidity)
