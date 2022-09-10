@@ -38,10 +38,14 @@ Configuration file options:
   
   "dewHeaterCutoutOffset": 1.0,        # Dew Heater cut-out (off) offset in degrees C. This offset is relative to the dew point.
 
-  "dewHeaterMaxTemp": 35,              # Dew Heater max temp, dew heater relay is opened if this temp is reached, but conrol is not shutdown thus the dew heater relay may be 						closed later if a set point is met. 
+  "dewHeaterMaxTemp": 35,              # Dew Heater max temp, dew heater relay is opened if this temp is reached, but control is not shutdown thus the dew heater relay may be 						closed later if a set point is met. 
   
   "dewHeaterMinTemp": 3,               # Dew Heater min temp, dew heater relay closed at this temp regardless of dew point calculations. This parameter is intended to force
-                                        the dew heater on in cold conditions regardless of whether the dew point has been reached.
+                                         the dew heater on in cold conditions regardless of whether the dew point has been reached.
+
+  "dewHeaterMaxTimeOn": 6.5,          # Maximum time limit for dew heater relay to be in an "on" state. Time is specified in decimal hours. 
+                                         When this time limit is exceeded the relay will be turned off with "Force=True". To reset, restart dewheater service. 
+                                         This is a safety feature intended to prevent the dew heater from staying on indefinitely. 
 
   "dewHeaterOnOffDelay": 5,            # Delay between on/off cycle, used only by dewheatertest.py
   

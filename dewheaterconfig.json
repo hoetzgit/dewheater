@@ -9,7 +9,7 @@
   "dewHeaterCutoutOffset": 1.0,
   "dewHeaterMaxTemp": 30.0,
   "dewHeaterMinTemp": 1.0,
-  "dewHeaterMaxTimeOn": 12,
+  "dewHeaterMaxTimeOn": 6.5,
   "dewHeaterOnOffDelay": 5,
   "dewPtCheckDelay": 5,
   "fakeDewPoint": false,

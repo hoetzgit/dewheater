@@ -61,6 +61,7 @@ class ConfigClass:
                 self.dewHeaterCutoutOffset = self.configFile['dewHeaterCutoutOffset']
                 self.dewHeaterMaxTemp = self.configFile['dewHeaterMaxTemp']
                 self.dewHeaterMinTemp = self.configFile['dewHeaterMinTemp']
+                self.dewHeaterMaxTimeOn = self.configFile['dewHeaterMaxTimeOn']
                 self.dewPtCheckDelay = self.configFile['dewPtCheckDelay']
                 self.fakeDewPoint = self.configFile['fakeDewPoint']
                 self.fakeDewPointSamples = self.configFile['fakeDewPointSamples']
@@ -167,6 +168,8 @@ class DewHeaterClass:
         self.minTempOn = False
         self.maxTempOff = False
         self.temp_actual = 0.0
+        self.dewHeaterMaxTimeOnStatus = False
+        self.timeOn = 0.0
 
     def on(self, forced=False):
 
@@ -181,6 +184,7 @@ class DewHeaterClass:
 
         GPIO.output(config.dewHeaterPin, config.relayOn)
         self.status = ON
+        self.timeStampOn = time()
 
     def off(self, forced=False):
         if (forced):
@@ -234,6 +238,11 @@ class DewHeaterClass:
             if (not self.minTempOn):
                 self.off(False)
 
+    def checkMaxTimeOn(self):
+        hoursOn = (time() - dewHeater.timeStampOn)/3600
+        if (hoursOn > config.dewHeaterMaxTimeOn):
+            self.off(True)
+
 
 dewHeater = DewHeaterClass()
 
@@ -253,6 +262,7 @@ def dispalySatus():
 
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
+    print("MdewHeaterMaxTimeOn = %3.1fH, dewHeaterMaxTimeOn status = %s" % (config.dewHeaterMaxTimeOn, dewHeater.dewHeaterMaxTimeOnStatus))
     print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
     conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
     print("====================================================")
