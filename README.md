@@ -55,7 +55,7 @@ Configuration file options:
   "invertOnOff": false                 # invert hi/low relay control signals for relay on/off to support relays wired to close on low signal and open on high
   
   
-BME Sensor Placement. The current code assumes that the BME sensor is under the acrylic dome. This allows for monitoring of
+Sensor Placement. The current code assumes that the BME or DHT sensor is under the acrylic dome. This allows for monitoring of
 actual conditions under the dome. The dew point offset values are implemented so that cut in/out points can be offset 
 relative to what works best for your installation to keep the dome dew free, and to adjust for hysteresis (which is considerable
 in my configuration). Note that features like max temp shutoff will only work properly with the DHT sensor under 
