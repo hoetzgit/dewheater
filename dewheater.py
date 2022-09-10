@@ -198,6 +198,7 @@ class DewHeaterClass:
 
         GPIO.output(config.dewHeaterPin, config.relayOff)
         self.status = OFF
+        self.timeStampOn = 0
 
     def cycleRelay(self):
         self.status = OFF
@@ -239,9 +240,10 @@ class DewHeaterClass:
                 self.off(False)
 
     def checkMaxTimeOn(self):
-        hoursOn = (time() - dewHeater.timeStampOn)/3600
-        if (hoursOn > config.dewHeaterMaxTimeOn):
-            self.off(True)
+        if (dewHeater.status == ON):
+            hoursOn = (time() - dewHeater.timeStampOn) / 3600
+            if (hoursOn > config.dewHeaterMaxTimeOn):
+                self.off(True)
 
 
 dewHeater = DewHeaterClass()
@@ -271,6 +273,7 @@ def dispalySatus():
 def main():
     while True:
         dewHeater.checkTemps()
+        dewHeater.checkMaxTimeOn()
         dispalySatus()
         time.sleep(config.dewPtCheckDelay)
 
