@@ -6,7 +6,7 @@
 #  This code controls a relay which supplies power to a dew heater circuit. It has been tested with a hacked band dew heater (as referenced below) and
 #  with resistor based circuits too.
 #
-#  A DHT22 or BME820 sensors are used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed.
+#  A DHT22 or BME820 sensor is used to monitor temperature and humidity. When dew point cut-in set point is reached then the dew heater relay is closed.
 #  When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as
 #  an offset from degrees Celsius of the dew point. This method of temperature control is primitive, but is sufficient for this purpose.
 #
@@ -61,6 +61,7 @@ class ConfigClass:
                 self.dewHeaterCutoutOffset = self.configFile['dewHeaterCutoutOffset']
                 self.dewHeaterMaxTemp = self.configFile['dewHeaterMaxTemp']
                 self.dewHeaterMinTemp = self.configFile['dewHeaterMinTemp']
+                self.dewHeaterMaxTimeOn = self.configFile['dewHeaterMaxTimeOn']
                 self.dewPtCheckDelay = self.configFile['dewPtCheckDelay']
                 self.fakeDewPoint = self.configFile['fakeDewPoint']
                 self.fakeDewPointSamples = self.configFile['fakeDewPointSamples']
@@ -168,6 +169,8 @@ class DewHeaterClass:
         self.minTempOn = False
         self.maxTempOff = False
         self.temp_actual = 0.0
+        self.dewHeaterMaxTimeOnStatus = False
+        self.timeOn = 0.0
 
     def on(self, forced=False):
 
@@ -182,6 +185,7 @@ class DewHeaterClass:
 
         GPIO.output(config.dewHeaterPin, config.relayOn)
         self.status = ON
+        self.timeStampOn = time()
 
     def off(self, forced=False):
         if (forced):
@@ -195,6 +199,7 @@ class DewHeaterClass:
 
         GPIO.output(config.dewHeaterPin, config.relayOff)
         self.status = OFF
+        self.timeStampOn = 0
 
     def cycleRelay(self):
         self.status = OFF
@@ -235,6 +240,12 @@ class DewHeaterClass:
             if (not self.minTempOn):
                 self.off(False)
 
+    def checkMaxTimeOn(self):
+        if (dewHeater.status == ON):
+            hoursOn = (time() - dewHeater.timeStampOn) / 3600
+            if (hoursOn > config.dewHeaterMaxTimeOn):
+                self.off(True)
+
 
 dewHeater = DewHeaterClass()
 
@@ -254,6 +265,7 @@ def dispalySatus():
 
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
+    print("MdewHeaterMaxTimeOn = %3.1fH, dewHeaterMaxTimeOn status = %s" % (config.dewHeaterMaxTimeOn, dewHeater.dewHeaterMaxTimeOnStatus))
     print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
     conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
     print("====================================================")
@@ -262,6 +274,7 @@ def dispalySatus():
 def main():
     while True:
         dewHeater.checkTemps()
+        dewHeater.checkMaxTimeOn()
         dispalySatus()
         time.sleep(config.dewPtCheckDelay)
 
