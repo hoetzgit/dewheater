@@ -4,33 +4,19 @@ Dew heater controller for allksycam.
 
 ### Overview
 
-This code controls a hacked USB powered dew heater or resistor based design. The dew heater hack consists of nothing
-more than removing the switch from the dew heater
+This code controls a relay which powers a dew heater circuit. A hacked USB powered dew heater band and resistor based
+designs have been tested. The USB dew heater band hack consists of nothing more than removing the switch from the dew
+heater
 and directly connecting the power leads to the NO side of a relay. This code should work with other designs also, but
-this has not yet been tested.
+may not have been tested yet.
 
 A BME280 or DHT22 sensor is used to monitor temperature and humidity. When dew point cut-in set point is reached then
-the dew heater relay is closed.
-When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined
-in the configuration file as
-an offset from degrees Celsius of the dew point. This offset allows for a rough degree of hysteresis control. This
-method of temperature control is primitive, but is sufficient for this purpose.
+the dew heater relay is closed. When the cut-out set point is reached the dew heater relay is opened. Both the cut-in
+and cut-out set points are defined in the configuration file as an offset from degrees Celsius of the dew point.
+This offset allows for a rough degree of hysteresis control. This method of temperature control is primitive, but is
+sufficient for this purpose.
 
-Wiring and library installation instructions can be found:
-
-https://pypi.org/project/RPi.bme280/
-
-### Libraries to be added to support BME280:
-
-a. RPi.bme280
-
-b. smbus2
-
-The hacked dew heater is based upon a dew heater like the one at the link below:
-
-https://www.amazon.com/dp/B08LGN222F?psc=1&ref=ppx_yo2_dt_b_product_details
-
-Configuration file options:
+Configuration parameters in dewheaterconfig.json:
 
 "debug": true # debug on/off
 
@@ -46,20 +32,19 @@ point.
 shutdown thus the dew heater relay may be closed later if a set point is met.
 
 "dewHeaterMinTemp": 3, # Dew Heater min temp, dew heater relay closed at this temp regardless of dew point calculations.
-This parameter is intended to force
-the dew heater on in cold conditions regardless of whether the dew point has been reached.
+This parameter is intended to force the dew heater on in cold conditions regardless of whether the dew point has been
+reached.
 
 "dewHeaterMaxTimeOn": 6.5, # Maximum time limit for dew heater relay to be in an "on" state. Time is specified in
-decimal hours.
-When this time limit is exceeded the relay will be turned off with "Force=True". To reset, restart dewheater service.
+decimal hours. When this time limit is exceeded the relay will be turned off with "Force=True". To reset, restart
+dewheater service.
 This is a safety feature intended to prevent the dew heater from staying on indefinitely. If dewHeaterMaxTimeOn equals
-zero
-then no check of maximum on time is performed (effectively max time on is infinite).
+zero then no check of maximum on time is performed (effectively max time on is infinite).
 
 "dewHeaterOnOffDelay": 5, # Delay between on/off cycle, used only by dewheatertest.py
 
 "dewPtCheckDelay": 5 # Time in seconds to wait between each dew point calculation (this includes reading the DHT sensor
-and making the dew point calculation).
+and making the dew point calculation). This parameter also determines how frequently status output is generated.
 
 "fakeDewPoint": false # enables dew point faking for test purposes. If enabled, temperature will be set to
 the dew point minus 2C.
@@ -67,14 +52,14 @@ the dew point minus 2C.
 "fakeDewPointSamples": 20 # number of samples for which dew point will be faked, after that samples are normal.
 
 "invertOnOff": false # invert hi/low relay control signals for relay on/off to support relays wired to close on low
-signal and open on high
+signal and open on high.
 
 Sensor Placement. The current code assumes that the BME or DHT sensor is under the acrylic dome. This allows for
-monitoring of
-actual conditions under the dome. The dew point offset values are implemented so that cut in/out points can be offset
+monitoring of actual conditions under the dome. The dew point offset values are implemented so that cut in/out points
+can be offset
 relative to what works best for your installation to keep the dome dew free, and to adjust for hysteresis (which is
-considerable
-in my configuration). Note that features like max temp shutoff will only work properly with the DHT sensor under
+considerable in my configuration). Note that features like max temp shutoff will only work properly with the DHT sensor
+under
 the acrylic dome. I plan to add a second DHT sensor to sense outside ambient conditions too.
 
 Modules
