@@ -73,7 +73,7 @@ Modules
 
 	dewheater.py  	   The main module, designed to be run as a service
 
-	dewheatertest.py   Simple timed on/of test script. Delay between on/off cycle is controlled by "dewHeaterOnOffDelay" parameter above.
+	dewheatertest.py   Simple timed on/off test script. Delay between on/off cycle is controlled by "dewHeaterOnOffDelay" parameter above.
 
 	dewheateron.py     Closes dew heater relay unconditionally (no cut in/out points, no timer). CAUTION: It does NOT open the relay again!
 
