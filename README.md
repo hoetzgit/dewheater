@@ -5,9 +5,8 @@ Dew heater controller for allksycam.
 ### Overview
 
 This code controls a relay which powers a dew heater circuit. A hacked USB powered dew heater band and resistor based
-designs have been tested. The USB dew heater band hack consists of nothing more than removing the switch from the dew
-heater
-and directly connecting the power leads to the NO side of a relay. This code should work with other designs also, but
+design have been tested. The USB dew heater band hack consists of nothing more than removing the switch from the dew
+heater and directly connecting the power leads to the NO side of a relay. This code should work with other designs also, but
 may not have been tested yet.
 
 A BME280 or DHT22 sensor is used to monitor temperature and humidity. When dew point cut-in set point is reached then
