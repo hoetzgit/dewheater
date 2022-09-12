@@ -1,48 +1,70 @@
+## Dewheater
 
 Dew heater controller for allksycam.
 
+### Overview
 
-This code controls a hacked USB powered dew heater. The dew heater hack consists of nothing more than removing the switch/connector from the dew heater and directly connecting the power leads to the NO side of a relay. This code should work with other dew heater circuit designs, such as resistor based, but I have not personally tested with other configurations. However other users are running different configurations successfully.
+This code controls a dew heater. Two dew heater designs have been tested. One is a hacked USB powered band type dew
+heater.
+The dew heater hack consists of nothing more than removing the switch from the dew heater and directly connecting the
+power leads to the NO side of a relay. Relay style dew heaters have also been tested. Any design which can be powered
+through
+a relay should work.
 
-A DHT22 sensor is used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed. When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as an offset from degrees Celsius of the dew point. This offset allows for a rough degree of hysterisis control. This method of temperature control is primitive, but is sufficient for this purpose.
+A BME280 or DHT22 sensor is used to monitor temperature and humidity. When dew point cut-in set point is reached then
+the dew heater relay is closed. When the cut-out set point is reached the dew heater relay is opened. Both the cut-in
+and
+cut-out set points are defined in the configuration file as an offset from degrees Celsius of the dew point.
+This offset allows for a rough degree of hysteresis control. This method of temperature control is primitive,
+but is sufficient for this purpose.
 
-The hacked dew heater is based upon a dew heater like the one at the link below:
-
-   https://www.amazon.com/dp/B08LGN222F?psc=1&ref=ppx_yo2_dt_b_product_details
-   
-     
 Configuration file options:
 
+"debug": true # debug on/off
 
-  "debug": true                        # debug on/off
-  
-  "dhtPin": 4,                         # DHT sensor GPIO pin, BCM mode
-  
-  "dewHeaterPin": 23,                  # Dew Heater relay control pin, BCM mode
-  
-  "dewHeaterCutinOffset": 1.0,         # Dew Heater cut-in (on) offset in degrees C. This offset is relative to the dew point. 
-  
-  "dewHeaterCutoutOffset": 1.0,        # Dew Heater cut-out (off) offset in degrees C. This offset is relative to the dew point.
+"dewHeaterPin": 23, # Dew Heater relay control pin, BCM mode
 
-  "dewHeaterMaxTemp": 35,              # Dew Heater max temp, dew heater relay is opened if this temp is reached, but conrol is not shutdown thus the dew heater relay may be closed later if a set point is met. 
-  
-  "dewHeaterMinTemp": 3,               # Dew Heater min temp, dew heater relay closed at this temp regardless of dew point calculations. This parameter is intended to force the dew heater on in cold conditions regardless of whether the dew point has been reached.
+"dewHeaterCutinOffset": 1.0, # Dew Heater cut-in (on) offset in +/- fractional degrees C. This offset is relative to the
+dew point.
 
-  "dewHeaterOnOffDelay": 5,            # Delay between on/off cycle, used only by dewheatertest.py
-  
-  "dewPtCheckDelay": 5                 # Time in seconds to wait between each dew point calculation (this includes reading the DHT sensor and making the dew point calculation).
+"dewHeaterCutoutOffset": 1.0, # Dew Heater cut-out (off) offset in +/- fractional degrees C. This offset is relative to
+the dew point.
 
-  "fakeDewPoint": false                # enables dew point faking for test purposes. If enabled, temperature will be set to the dew point minus 2C.
+"dewHeaterMaxTemp": 35, # Dew Heater max temp, dew heater relay is opened if this temp is reached, but control
+is not shutdown thus the dew heater relay may be closed later if a set point is met.
 
-  "fakeDewPointSamples": 20            # number of samples for which dew point will be faked, after that samples are normal.
+"dewHeaterMinTemp": 3, # Dew Heater min temp, dew heater relay closed at this temp regardless of dew point
+calculations. This parameter is intended to force the dew heater on in cold conditions
+regardless of whether the dew point has been reached.
 
-  "invertOnOff": false                 # invert hi/low relay control signals for relay on/off to support relays wired to close on low signal and open on high
-  
-  
-DHT Sensor Placement. The current code assumes that the DHT sensor is under the acrylic dome. This allows for monitoring of actual conditions under the dome. The dew point offset values are implemented so that cut in/out points can be offset relative to what works best for your installation to keep the dome dew free, and to adjust for hysteresis (which is considerable in my configuration). Note that features like max temp shutoff will only work properly with the DHT sensor under the acrylic dome. I plan to add a second DHT sensor to sense outside ambient conditions too.
+"dewHeaterMaxTimeOn": 6.5, # Maximum time limit for dew heater relay to be in an "on" state. Time is specified in
+fractional decimal hours. When this time limit is exceeded the relay will be turned
+off with "Force=True". To reset, restart dewheater service. This is a safety feature
+intended to prevent the dew heater from staying on indefinitely. To disable, set to 0.
 
-  
-  Modules
+"dewHeaterOnOffDelay": 5, # Delay between on/off cycle, used only by dewheatertest.py
+
+"dewPtCheckDelay": 5 # Time in seconds to wait between each dew point calculation (this includes reading
+the DHT sensor and making the dew point calculation). This also controls how often
+output is generated.
+
+"fakeDewPoint": false # enables dew point faking for test purposes. If enabled, temperature will be set to
+the dew point minus 2C.
+
+"fakeDewPointSamples": 20 # number of samples for which dew point will be faked, after that samples are normal.
+
+"invertOnOff": false # invert hi/low relay control signals for relay on/off to support relays wired to
+close on low signal and open on high
+
+Sensor Placement. The current code assumes that the BME or DHT sensor is under the dome that covers the camera lens.
+This allows for monitoring of actual conditions under the dome. The dew point offset values are implemented so that
+cut in/out points can be offset relative to what works best for your installation to keep the dome dew free, and to
+adjust
+for hysteresis (which is considerable in my configuration). Note that features like max temp shutoff will only work
+properly
+with the sensor under the acrylic dome.
+
+Modules
 
 	dewheater.py  	   The main module, designed to be run as a service
 
@@ -53,72 +75,6 @@ DHT Sensor Placement. The current code assumes that the DHT sensor is under the 
 	dewheateroff.py    Opens dew heater relay unconditionally (no cut in/out points, no timer).
 	
 	
-
-Dew Heater Service Install
-
-The following instructions were created by installing the dewheater service on a fresh install of Raspian Buster.  This installation assumes you are using python3 and pip3
-
- 1   Install source code
- 
- 1.1  Create dewheater directory: mkdir dewheater below $HOME 
- 
- 1.2  Copy the following files to dewheater directory
- 
-        dewheaterconfig.json
-        dewheateron.py
-        dewheater.service
-        dewheateroff.py
-        dewheater.py
-        dewheatertest.py
-
- 2  Install libraries
- 
- 2.1  sudo apt update
- 
- 2.2  sudo apt upgrade
- 
- 2.3  Install Adafruit_DHT library
- 
-
- 2.3.1  Follow instructions at this link: https://learn.adafruit.com/adafruit-io-basics-temperature-and-humidity/python-setup
- 
-
- 2.4  Install meteocalc library
- 
- 2.4.1  sudo pip3 install meteocalc
- 
- 
- 2.5  Other libraries referenced (sys, json, GPIO, and time) should not require an explicit install, but may on some configurations.
- 
- 
- 3  Configure Service
- 
- 3.1  Copy dewheater.service from dewheater directory to /lib/systemd/system/
- 
- 3.1.1  sudo cp /home/pi/dewheater/dewheater.service /lib/systemd/system/
- 
- 3.3  Start dewheater service
- 
- 3.3.1  sudo systemctl start dewheater
- 
- 3.5  Enable dewheater service to start at boot
- 
- 3.5.1  sudo systemctl enable dewheater
- 
- 3.7  Check status of dewheater service
- 
- 3.7.1  sudo systemctl status dewheater
- 
-
-Example output:
-
-● dewheater.service - dewheater
-Loaded: loaded (/lib/systemd/system/dewheater.service; disabled; vendor preset: enabled)
-Active: active (running) since Fri 2022-01-21 17:44:20 PST; 6s ago
-Main PID: 30059 (python3)
-Tasks: 1 (limit: 2062)
-CGroup: /system.slice/dewheater.service
-└─30059 /usr/bin/python3 /home/pi/dewheater/dewheater.py
 
 
 
