@@ -1,7 +1,7 @@
 #
 #  dew-heater-control
 #
-#  2021-10-18 C. Collins created
+#  2021FIRST_TIME_ON0FIRST_TIME_ON8 C. Collins created
 #
 #  This code controls a relay which supplies power to a dew heater circuit. It has been tested with a hacked band dew heater (as referenced below) and
 #  with resistor based circuits too.
@@ -31,6 +31,7 @@ import bme280
 DHT_SENSOR = Adafruit_DHT.DHT22
 ON = 1
 OFF = 0
+FIRST_TIME_ON = -1.0
 
 
 class ConfigClass:
@@ -169,7 +170,7 @@ class DewHeaterClass:
         self.maxTempOff = False
         self.temp_actual = 0.0
         self.maxTimeOn = False
-        self.timeOn = -1.0
+        self.timeOn = FIRST_TIME_ON
         self.hoursOn = 0
 
     def on(self, forced=False):
@@ -177,7 +178,7 @@ class DewHeaterClass:
         if (forced):
             GPIO.output(config.dewHeaterPin, config.relayOn)
             self.status = ON
-            if (self.timeStampOn == -1.0): self.timeStampOn = time.time()
+            if (self.timeStampOn == FIRST_TIME_ON): self.timeStampOn = time.time()
             return
 
         if (self.maxTempOff):
@@ -190,13 +191,13 @@ class DewHeaterClass:
 
         GPIO.output(config.dewHeaterPin, config.relayOn)
         self.status = ON
-        if (self.timeStampOn == -1.0): self.timeStampOn = time.time()
+        if (self.timeStampOn == FIRST_TIME_ON): self.timeStampOn = time.time()
 
     def off(self, forced=False):
         if (forced):
             GPIO.output(config.dewHeaterPin, config.relayOff)
             self.status = OFF
-            self.timeStampOn = -1.0
+            self.timeStampOn = FIRST_TIME_ON
             return
 
         if (self.minTempOn):
@@ -205,7 +206,7 @@ class DewHeaterClass:
 
         GPIO.output(config.dewHeaterPin, config.relayOff)
         self.status = OFF
-        self.timeStampOn = -1.0
+        self.timeStampOn = FIRST_TIME_ON
 
     def cycleRelay(self):
         self.status = OFF
