@@ -198,6 +198,7 @@ class DewHeaterClass:
             GPIO.output(config.dewHeaterPin, config.relayOff)
             self.status = OFF
             self.timeStampOn = FIRST_TIME_ON
+            self.hoursOn = 0.0
             return
 
         if (self.minTempOn):
@@ -207,6 +208,7 @@ class DewHeaterClass:
         GPIO.output(config.dewHeaterPin, config.relayOff)
         self.status = OFF
         self.timeStampOn = FIRST_TIME_ON
+        self.hoursOn = 0.0
 
     def cycleRelay(self):
         self.status = OFF
