@@ -277,7 +277,7 @@ def dispalySatus():
         conditions.dewPoint.c + config.dewHeaterCutinOffset, conditions.dewPoint.c + config.dewHeaterCutoutOffset))
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
-    print("MaxTimeOn = %3.2fH, maxTimeOn = %s, hoursOn = %3.2fH" % (
+    print("MaxTimeOn = %3.2fH, MaxTimeOn met = %s, hoursOn = %3.2fH" % (
         config.dewHeaterMaxTimeOn, dewHeater.maxTimeOn, dewHeater.hoursOn))
     print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
         conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
