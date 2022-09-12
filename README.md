@@ -19,6 +19,14 @@ Configuration parameters in dewheaterconfig.json:
 
 "debug": true # debug on/off
 
+"sensorType": "BME280", Set to either "BME280" or "DHT22" depending on sensor type installed.
+
+"dhtPin": 4, GPIO pin used for DHT22 if installed, BCM mode
+
+"bmePort": 1, Port used by BME280 if installed
+
+"bmeAddress": "0x76", BMD280 address if installed
+
 "dewHeaterPin": 23, # Dew Heater relay control pin, BCM mode
 
 "dewHeaterCutinOffset": 1.0, # Dew Heater cut-in (on) offset in degrees C. This offset is added to the calculated dew

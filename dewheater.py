@@ -6,7 +6,7 @@
 #  This code controls a relay which supplies power to a dew heater circuit. It has been tested with a hacked band dew heater (as referenced below) and
 #  with resistor based circuits too.
 #
-#  A DHT22 or BME820 sensor is used to monitor temperature and humidity. When dew point cut-in set point is reached then the dew heater relay is closed.
+#  A DHT22 or BME280 sensor is used to monitor temperature and humidity. When dew point cut-in set point is reached then the dew heater relay is closed.
 #  When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as
 #  an offset from degrees Celsius of the dew point. This method of temperature control is primitive, but is sufficient for this purpose.
 #
