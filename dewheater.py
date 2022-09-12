@@ -1,7 +1,7 @@
 #
 #  dew-heater-control
 #
-#  2021FIRST_TIME_ON0FIRST_TIME_ON8 C. Collins created
+#  2021-10-18 C. Collins created
 #
 #  This code controls a relay which supplies power to a dew heater circuit. It has been tested with a hacked band dew heater (as referenced below) and
 #  with resistor based circuits too.
@@ -53,7 +53,7 @@ class ConfigClass:
                 self.dhtPin = self.configFile['dhtPin']
                 self.sensorType = self.configFile['sensorType']
                 if (self.sensorType != "BME280" and self.sensorType != "DHT22"):
-                    sys.stderr.write("\nInvalid sensor type: %s" %self.sensorType)
+                    sys.stderr.write("\nInvalid sensor type: %s" % self.sensorType)
                     raise Exception(1)
                 self.bmeAddress = self.configFile["bmeAddress"]
                 self.bmePort = self.configFile["bmePort"]
@@ -100,7 +100,7 @@ dht = DHTClass()
 class BME820Class:
     def __init__(self):
         self.port = config.bmePort
-        self.address = int(config.bmeAddress,0)
+        self.address = int(config.bmeAddress, 0)
         self.bus = smbus2.SMBus(config.bmePort)
         self.bme_calibration_params = bme280.load_calibration_params(self.bus, self.address)
 
@@ -133,7 +133,7 @@ class ConditionsClass:
                 return
 
         if self.humidity is not None and self.temperature is not None:
-            if ((self.temperature >= -40) and (self.temperature <= 80)) and (
+            if ((self.temperature >= -40) and (self.temperature <= 150)) and (
                     (self.humidity >= 0) and (self.humidity <= 100)):
                 self.temp_actual = self.temperature  # set actual temp for use when fakeDewPoint is true
                 self.dewPoint = dew_point(self.temperature, self.humidity)
@@ -224,6 +224,7 @@ class DewHeaterClass:
         if (conditions.temp_actual > config.dewHeaterMaxTemp):  # use temp_actual for when fakeDewPoint is set
             self.maxTempOff = True
             self.off(True)
+            print("Max temp exceeded, dew heater turned off")
             return ()
         else:
             if (self.maxTempOff):
@@ -254,6 +255,8 @@ class DewHeaterClass:
                 if (self.hoursOn > config.dewHeaterMaxTimeOn):
                     self.maxTimeOn = True
                     self.off(True)
+                    print("Max dew heater on time exceeded, dew heater turned off. Restart service to reset")
+
 
 dewHeater = DewHeaterClass()
 
@@ -271,11 +274,11 @@ def dispalySatus():
     print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%%, Dew Point = %3.1fC" % (
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
     print("Dew Point + cut-in offset = %3.1fC, Dew Point + cut-out offset = %3.1fC" % (
-    conditions.dewPoint.c + config.dewHeaterCutinOffset, conditions.dewPoint.c + config.dewHeaterCutoutOffset))
+        conditions.dewPoint.c + config.dewHeaterCutinOffset, conditions.dewPoint.c + config.dewHeaterCutoutOffset))
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
-    print("dewHeaterMaxTimeOn = %3.2fH, maxTimeOn = %s, hoursOn = %3.2fH" % (
-    config.dewHeaterMaxTimeOn, dewHeater.maxTimeOn, dewHeater.hoursOn))
+    print("MaxTimeOn = %3.2fH, maxTimeOn = %s, hoursOn = %3.2fH" % (
+        config.dewHeaterMaxTimeOn, dewHeater.maxTimeOn, dewHeater.hoursOn))
     print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
         conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
     print("====================================================")
