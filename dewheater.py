@@ -19,7 +19,7 @@
 #
 
 import sys
-# import signal
+import signal
 import RPi.GPIO as GPIO
 import time
 import json
@@ -35,13 +35,11 @@ OFF = 0
 FIRST_TIME_ON = -1.0
 
 
-# def sigterm_handler(signo, frame):
-#     GPIO.cleanup()
-#     print("SIGTERM signal received, exiting.")
-#     sys.exit(0)
-
-# signal.signal(signal.SIGTERM, sigterm_handler)
-
+def sigterm_handler(signo, frame):
+    GPIO.cleanup()
+    print("SIGTERM signal received, exiting.")
+    sys.exit(0)
+    
 
 class ConfigClass:
 
@@ -87,7 +85,7 @@ class ConfigClass:
             sys.stderr.flush()
             sys.exit("\nError opening or parsing config file, exiting")
 
-        #f.close()
+        f.close()
         return (True)
 
 
@@ -297,6 +295,7 @@ def dispalySatus():
 
 
 def main():
+    signal.signal(signal.SIGTERM, sigterm_handler)
     while True:
         dewHeater.checkTemps()
         dewHeater.checkMaxTimeOn()
