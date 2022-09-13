@@ -19,6 +19,7 @@
 #
 
 import sys
+# import signal
 import RPi.GPIO as GPIO
 import time
 import json
@@ -32,6 +33,14 @@ DHT_SENSOR = Adafruit_DHT.DHT22
 ON = 1
 OFF = 0
 FIRST_TIME_ON = -1.0
+
+
+# def sigterm_handler(signo, frame):
+#     GPIO.cleanup()
+#     print("SIGTERM signal received, exiting.")
+#     sys.exit(0)
+
+# signal.signal(signal.SIGTERM, sigterm_handler)
 
 
 class ConfigClass:
@@ -78,6 +87,7 @@ class ConfigClass:
             sys.stderr.flush()
             sys.exit("\nError opening or parsing config file, exiting")
 
+        #f.close()
         return (True)
 
 
