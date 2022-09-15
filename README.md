@@ -50,7 +50,7 @@ zero then no check of maximum on time is performed (effectively max time on is i
 
 "dewHeaterOnOffDelay": 5, # Delay between on/off cycle, used only by dewheatertest.py
 
-"dewPtCheckDelay": 5 # Time in seconds to wait between each dew point calculation (this includes reading the DHT sensor
+"dewPtCheckDelay": 5 # Time in seconds to wait between each dew point calculation (this includes reading the sensor
 and making the dew point calculation). This parameter also determines how frequently status output is generated.
 
 "fakeDewPoint": false # enables dew point faking for test purposes. If enabled, temperature will be set to
@@ -65,9 +65,9 @@ Sensor Placement. The current code assumes that the BME or DHT sensor is under t
 monitoring of actual conditions under the dome. The dew point offset values are implemented so that cut in/out points
 can be offset
 relative to what works best for your installation to keep the dome dew free, and to adjust for hysteresis (which is
-considerable in my configuration). Note that features like max temp shutoff will only work properly with the DHT sensor
+considerable in my configuration). Note that features like max temp shutoff will only work properly with the sensor
 under
-the acrylic dome. I plan to add a second DHT sensor to sense outside ambient conditions too.
+the acrylic dome.
 
 Modules
 
