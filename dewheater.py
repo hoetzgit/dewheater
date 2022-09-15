@@ -36,20 +36,17 @@ FIRST_TIME_ON = -1.0
 
 
 def sigterm_handler(signo, frame):
+    print("SIGTERM signal received, forcing dew heater off, exiting.")
+    dewHeater.off(True)
     GPIO.cleanup()
-    print("SIGTERM signal received, exiting.")
     sys.exit(0)
-    
+
 
 class ConfigClass:
 
     def __init__(self):
         self.loadConfig()
-        #        self.setup()
         GPIO.setmode(GPIO.BCM)
-
-    # def checkConfig(self):
-    # future edits...
 
     def loadConfig(self):
         try:
