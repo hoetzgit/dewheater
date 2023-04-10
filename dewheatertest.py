@@ -77,7 +77,7 @@ class DewHeaterClass:
         data = bme280.sample(bus, address, calibration_params)
         self.humidity = data.humidity
         self.temperature = data.temerature
-        print("Temp = %3.1fC Humidity %3.1f%%" % (temperature, humidity))
+        print("Temp = %3.1fC Humidity %3.1f%%" % (data.temperature, data.humidity))
 
 dewHeater = DewHeaterClass()
 
